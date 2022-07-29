@@ -1,0 +1,902 @@
+function getTimeDate(selected_time){
+  // selected_time='07-28-2022 12:12:15'
+  var timearray = []
+  selected_time=String(selected_time);
+  var issue_date = Utilities.formatDate(new Date(selected_time),"GMT+1","MMMM dd, yyyy");
+  console.log(issue_date +" ISSUE_DATE-----------");
+  
+  if(selected_time.length > 20){
+    console.log(selected_time + " IF Condition");
+    var sliced  = selected_time.slice(16,18);
+    var sliced2 = selected_time.slice(16,21);
+
+    if (sliced < 12) {
+      time = sliced2;
+      issue_time2 = "Time " + time + " AM CET, ";
+      console.log(issue_time2);
+    } 
+
+    else if (sliced == 12){
+      time = sliced2;
+      issue_time2 = "Time " + time + " PM CET, ";
+      console.log(issue_time2);
+    }
+
+    else if (sliced > 12){
+      time = sliced - 12 + selected_time.slice(18, 21);
+      issue_time2 = "Time " + time + " PM CET, ";
+      console.log(issue_time2);
+    }
+
+  // timearray.push(issue_time2);
+
+  console.log('time--',issue_time2);
+  // timearray.push(issue_time2);
+  issue_date=new Date(issue_date);
+  console.log('date--',issue_date);
+  date=issue_date.getDate();
+  console.log('date TEST 2--',issue_date.getDate());
+  var suffix = ["th", "st", "nd", "rd"][(date > 3 && date < 21) || date % 10 > 3 ? 0 : date % 10];
+
+  console.log('date test --',date+suffix);
+  var curr_month = Utilities.formatDate(issue_date, "GMT+1", "MMMM");
+  var curr_year = Utilities.formatDate(issue_date, "GMT+1", "yyyy");
+
+    console.log('month test --',curr_month);
+  console.log('year test --',curr_year);
+
+  
+    console.log(curr_month + " " + date + suffix + ", " + curr_year);
+    timearray.push(issue_time2+curr_month + " " + date + suffix + ", " + curr_year);
+
+  
+  }
+
+
+  else{
+    console.log(selected_time + " ELSE Condition");
+    var sliced  = selected_time.slice(11,13);
+    var sliced2 = selected_time.slice(11,16);
+
+    if (sliced < 12){
+      time = sliced2;
+      issue_time2 = "Time " + time + " AM CET, ";
+      console.log(issue_time2);
+    }
+    
+    else if (sliced == 12){
+      time = sliced2;
+      issue_time2 = "Time " + time + " PM CET, ";
+      console.log(issue_time2);
+    }
+    
+    else if (sliced > 12){
+      time = sliced - 12 + selected_time.slice(13, 16);
+      issue_time2 = "Time " + time + " PM CET, ";
+      console.log(issue_time2);
+  }
+  
+  console.log('time--',issue_time2);
+  // timearray.push(issue_time2);
+  issue_date=new Date(issue_date);
+  console.log('date--',issue_date);
+  date=issue_date.getDate();
+  console.log('date TEST 2--',issue_date.getDate());
+  var suffix = ["th", "st", "nd", "rd"][(date > 3 && date < 21) || date % 10 > 3 ? 0 : date % 10];
+
+  console.log('date test --',date+suffix);
+  var curr_month = Utilities.formatDate(issue_date, "GMT+1", "MMMM");
+  var curr_year = Utilities.formatDate(issue_date, "GMT+1", "yyyy");
+
+    console.log('month test --',curr_month);
+  console.log('year test --',curr_year);
+
+  
+    console.log(curr_month + " " + date + suffix + ", " + curr_year);
+    timearray.push(issue_time2+curr_month + " " + date + suffix + ", " + curr_year);
+
+
+  }
+
+
+  // getCurrentDate()
+  var date = Utilities.formatDate(new Date(), "GMT+1", "dd");
+    console.log('date today --',date);
+
+  var suffix = ["th", "st", "nd", "rd"][(date > 3 && date < 21) || date % 10 > 3 ? 0 : date % 10];
+  var curr_month = Utilities.formatDate(new Date(), "GMT+1", "MMMM");
+  var curr_year = Utilities.formatDate(new Date(), "GMT+1", "yyyy");
+  
+  timearray.push(curr_month + " " + date + suffix + ", " + curr_year);
+  
+  return timearray;
+}
+
+function getCountries_1(records){
+  var temp_countries_all = [];
+  
+  for(var i=10;i<19;i=i+2){
+    temp = records[i].split(",");
+
+    for(var j=0;j<temp.length;j++){
+      if(!temp_countries_all.includes(temp[j]) && temp[j]!=""){
+        temp_countries_all.push(temp[j]);
+        // console.log("TEST_COUNTRIES" + temp[j] + " TEMP");
+      }
+    }
+  }
+  return temp_countries_all;
+}
+
+var affected_country_all = [];
+var temp_country_array = [];
+var all_country = [];
+// Getting instance of current Google WorkBook
+var ss=SpreadsheetApp.getActive();
+var new_sheet = ss.getSheetByName('New');
+var existing_sheet = ss.getSheetByName('Existing');
+var par_sheet = ss.getSheetByName('PAR');
+var alert_sheet = ss.getSheetByName('Alert');
+var warning_sheet = ss.getSheetByName('Warning');
+var recovery_sheet = ss.getSheetByName('Recovery');
+var issue_sheet = ss.getSheetByName('Issue');
+var active_issues = ss.getSheetByName('Active Issues');
+var mail_code = ss.getSheetByName('Mail_Code');
+issue_time2 = '';
+
+
+
+function onClearNew(){
+  new_sheet.getRangeList(["D5","D7:D8","D10","D12:D14","D16:D18","D20:D22","D24:D26","D28:30","D32:34","I3","K3","M3","O3","Q3",  "H4:H23","J4:J23","L4:L23","P3:P23","N3:N23"]).clearContent();
+}
+function onClearExisting(){
+  existing_sheet.getRangeList(["D5","D7","D9:D11","D13:D15","D17","H3:L7", "H10:L14"]).clearContent();
+
+}
+
+
+function onNewSubmit(){
+  var records = [];
+  records.push(issue_sheet.getDataRange().getValues().length);
+  var today = new Date();
+  var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+  records.push(date + " " + time);
+
+  records.push(new_sheet.getRange(5,4).getValue());
+  records.push(new_sheet.getRange(7,4).getValue());
+  records.push(new_sheet.getRange(10,4).getValue());
+  records.push(new_sheet.getRange(12,4).getValue());
+  records.push(new_sheet.getRange(16,4).getValue());
+  records.push(new_sheet.getRange(20,4).getValue());
+  records.push(new_sheet.getRange(24,4).getValue());
+
+  for(var i=9; i< 18; i = i + 2){
+    var cell_value = new_sheet.getRange(3,i).getValue();
+
+    for(var j = 4;j<23;j++){ 
+      var check_box_value = new_sheet.getRange(j,i-1).getValue();
+      if(check_box_value == true){
+        temp_country_array.push(new_sheet.getRange(j,i).getValue().toString());
+      }
+    }
+
+    records.push(cell_value);
+    records.push(temp_country_array.toString());
+    all_country.push(temp_country_array.toString());
+
+    temp_country_array = [];
+    
+  }
+
+  records[19] = 'Alert';
+  records[20] = 0;
+  records[21] = 0;
+  records[4] = String(records[4]);
+  draftData=template(records,records[2],'issue_end_time');
+  // issue_sheet.appendRow(records);
+  records = [];
+
+  return draftData
+}
+
+function existingAlert(preview_draft){
+
+  email_type=existing_sheet.getRange(5,4).getValue()
+  // console.log(email_type);
+  issue=existing_sheet.getRange(7,4).getValue()
+  // console.log(issue);
+  action_plan=existing_sheet.getRange(9,4).getValue()
+  // console.log(action_plan);
+  next_comm=existing_sheet.getRange(13,4).getValue()
+  // console.log(next_comm);
+  issue_end_time=existing_sheet.getRange(17,4).getValue()
+  // console.log(issue_end_time);
+
+  var data = issue_sheet.getDataRange().getValues();
+  var active_issue_data = active_issues.getRange("A3:B100").getValues();
+  var active_issue_id;
+  // console.log(active_issue_data);
+
+  for(var i=0; i<active_issue_data.length;i++){
+    if(active_issue_data[i][1] == issue){
+        // console.log("Entered");
+        active_issue_id = active_issue_data[i][0];
+        // console.log(active_issue_id)
+        break;
+    }
+    
+  }
+  // console.log(active_issue_id + " Active issue id");
+  
+  for(var i =1; i< data.length; i++){
+    // console.log(data[i][0] + " Data[" + i +"][0]")
+    // console.log(data.length + " Data length");
+    if(data[i][0] == active_issue_id && email_type != 'Recovery' ){
+      // console.log("HI");
+      data[i][6] = action_plan;
+      data[i][8] = next_comm;
+      data[i][19] = email_type;
+      // console.log(issue_sheet.getRange(active_issue_id+1,22).getValue() + " NN");
+      // console.log(typeof(issue_sheet.getRange(active_issue_id+1,22).getValue()));
+      // console.log(preview_draft);
+      if((issue_sheet.getRange(active_issue_id+1,22).getValue() == 0) && (preview_draft == "Preview")){
+        // console.log("INSIDE");
+        data[i][20] = data[i][20] + 1;
+        issue_sheet.getRange(active_issue_id + 1,22).setValue(1);
+      }
+      else if(preview_draft == "Draft"){
+        issue_sheet.getRange(active_issue_id + 1,22).setValue(0);
+      }
+      
+      
+      data[i][4] = String(data[i][4]);
+      // console.log(data[i][4] + " Data [i][4]");
+      ss.getSheetByName(email_type).appendRow(data[i]);
+      draftData=template(data[i],existing_sheet.getRange("D5").getValue(),issue_end_time);
+      
+      
+      issue_sheet.getRange(active_issue_id + 1,20).setValue(email_type);
+      issue_sheet.getRange(active_issue_id + 1,21).setValue(data[i][20]);
+
+      break;
+    }
+    else if(data[i][0] == active_issue_id && email_type == 'Recovery'){
+      data[i][19] = email_type;
+      if((issue_sheet.getRange(active_issue_id+1,22).getValue() == 0) && (preview_draft == "Preview")){
+        // console.log("INSIDE");
+        data[i][20] = data[i][20] + 1;
+        issue_sheet.getRange(active_issue_id + 1,22).setValue(1);
+      }
+      else if(preview_draft == "Draft"){
+        issue_sheet.getRange(active_issue_id + 1,22).setValue(0);
+      }
+
+      data[i][4] = String(data[i][4]);
+      data[i].push(issue_end_time);
+      // console.log("REcovery" + data);
+      recovery_sheet.appendRow(data[i]);
+      draftData=template(data[i],existing_sheet.getRange("D5").getValue(),issue_end_time);
+      // console.log("Entering in else");
+      if(preview_draft == "Draft"){
+        issue_sheet.getRange(active_issue_id + 1,20).setValue(email_type);
+      }
+      issue_sheet.getRange(active_issue_id + 1,21).setValue(data[i][20]);
+      break;
+    }
+
+  }
+
+  return draftData;
+}
+
+function template(records,type,issue_end_time){
+    // console.log("AAAAAAAA" + type);
+    var recipient = "mohammedjawwad.mohammedismail.ext@holcim.com";
+   
+    // console.log(type + " TYpe");
+
+    if(type == 'Alert'){
+      // console.log("Alert Called");
+      var htmlBody = HtmlService.createTemplateFromFile("Alert_Html");
+      // console.log(htmlBody + " HTML");
+      if(records[20] == 0){   
+        htmlBody.subject = records[3];
+      }
+      else{
+        htmlBody.subject = records[3] + " [UPDATE- " + records[20] + "]";
+      }
+      
+      var timearray = getTimeDate(records[4]);
+      htmlBody.issue_time = timearray[0]; //issue start time and date
+      htmlBody.today_date = timearray[1]; //current date
+      htmlBody.issue = records[5]; //issue
+      htmlBody.action_plan = records[6]; //action
+      htmlBody.impact = records[7]; //impact
+      if(records[10].toString().toLowerCase() == 'all'){
+        htmlBody.countries =  getCountries(records)[1];
+      }
+      else{
+        htmlBody.countries  = getCountries_1(records);
+      }      
+      htmlBody.next_comm = records[8]; //next communication
+      var message = htmlBody.evaluate().getContent();
+      // console.log(htmlBody.evaluate() + " HTML AFTER");
+
+    }
+
+    else if(type == 'Warning'){
+      // console.log("Warning called");
+      var htmlBody = HtmlService.createTemplateFromFile("Warning_Html");
+      if(records[20] == 0){    
+        htmlBody.subject = records[3];
+       }
+      else{
+        htmlBody.subject  = records[3] + " [UPDATE- " + records[20] + "]";;
+      }
+      var timearray = getTimeDate(records[4]);
+      htmlBody.issue_time = timearray[0];
+      htmlBody.today_date = timearray[1]; //current date
+      htmlBody.issue = records[5];
+      htmlBody.action_plan = records[6];
+      if(records[10].toString().toLowerCase() == 'all'){
+        htmlBody.countries =  getCountries(records)[1];
+      }
+      else{
+        htmlBody.countries  = getCountries_1(records);
+      }
+      htmlBody.next_comm = records[8];
+      var message = htmlBody.evaluate().getContent();
+    }
+    
+    else if (type == "Recovery"){
+      // console.log("Recovery called");
+      var htmlBody = HtmlService.createTemplateFromFile("Recovery_Html");
+      if(records[20] == 0){    
+        htmlBody.subject = records[3];
+       }
+       else{
+        htmlBody.subject = records[3] + " [SOLVED]";
+       }
+      htmlBody.issue = records[3];
+      var timearray = getTimeDate(issue_end_time);
+      htmlBody.issue_end_time = timearray[0];
+      htmlBody.today_date = timearray[1]; 
+      
+      var message = htmlBody.evaluate().getContent();
+      
+  }
+
+  // Calculating To/Cc
+  if(records[10].toString().toLowerCase() == "all"){
+    var toCc = to_cc_or_logic(records);
+  }
+  else{
+    var toCc = to_cc_and_logic(records);
+  }
+
+
+  // console.log(// console.log("ABC " + records));
+  // console.log(htmlBody.subject);
+
+  var brcd = "<html><br></br></html>";
+  // var mss = issue_sheet.getRange(1,24).getValue() + issue_sheet.getRange(1,25).getValue(); 
+  // var mail_code = ss.getSheetByName('Mail_Code');
+  var temp  = [];
+  temp.push(records[0]);
+  temp.push(records[3]);
+  temp.push(brcd + "---------- Forwarded message ---------" + brcd + "From: EMEA IS Service Hub - " + 
+  "Customer Service  &lt; customer-service.emea-issh@lafargeholcim.com &gt;" + brcd + "Date: " + records[1] + 
+  brcd+ "Subject: " + records[3] + brcd+ "To: " + toCc[0].toString() + brcd +" Cc: " + toCc[1].toString() + 
+  message + brcd);
+
+
+
+//-------------------------- Preview & Create Draft ---------------------------------------
+    
+    to='mohammedjawwad.mohammedismail.ext@holcim.com';
+    cc='shreya.patil.ext@holcim.com';
+
+    draftData=[];
+    draftData.push(records);
+    draftData.push(records[3]);
+    draftData.push(to);
+    draftData.push(cc);
+    draftData.push(message);
+    draftData.push(htmlBody.subject);
+
+    return draftData;
+}
+
+var splited = [];
+function removeDuplicate(value, array){
+  splited = value.split(",\n");
+  for (var k = 0; k < splited.length; k++) {
+    if (!array.includes(splited[k]) && splited[k].length > 0) {
+      array.push(splited[k]);
+    }
+  }
+  splited = [];
+  return array;
+}
+
+function to_cc_and_logic(records){
+  var entity_service_sheet = SpreadsheetApp.openById("1E8MwAD8xPVX-qRTPTO42YHje5dhLJ-cHiMW9jQnWoU4");
+  var entity_service = entity_service_sheet.getSheetByName("Sheet").getDataRange().getValues();
+
+  var to_cc_values_sheet = SpreadsheetApp.openById("1UvUKxa8Yghmv1W_ST0PTS6nmBTIi-O8BAp4PtT97z0M");
+  var to_cc_values = to_cc_values_sheet.getSheetByName("Sheet").getDataRange().getValues();
+
+  var to = [];
+  var cc = [];
+  var i = 9;
+  var j = 10;
+  var affected_country_all = [];
+
+  count = 0;
+  while (count <5) {
+    var affected_Service = records[i];
+    var affected_Country = records[j];
+
+    affected_country_all.push(affected_Country);
+    // console.log(affected_Service + " Affected Service");
+    // console.log(affected_Country + " Affected Countriess");
+
+    for (var m = 1; m < to_cc_values.length; m++) {
+      if(affected_Country.includes(to_cc_values[m][1]) && to_cc_values[m][0] == affected_Service &&
+        to_cc_values[m][2].toString().toLowerCase() == "to"){
+
+          to = removeDuplicate(to_cc_values[m][3], to);
+
+      }
+      else if( to_cc_values[m][0] == affected_Service && to_cc_values[m][2].toString().toLowerCase() == "cc"){
+        if (affected_Country.includes(to_cc_values[m][1]) || to_cc_values[m][1].toString().toLowerCase() == "all"){
+
+          cc = removeDuplicate(to_cc_values[m][3], cc);
+
+        }
+      }
+    }
+
+    if (count == 4){
+      affected_country_all = [].concat.apply([], affected_country_all);
+      var affected_country_all = [...new Set(affected_country_all)];
+      // console.log(affected_country_all);
+
+      for (var m = 1; m < to_cc_values.length; m++) {
+        if(affected_country_all.includes(to_cc_values[m][1]) && 
+          to_cc_values[m][0].toString().toLowerCase() == "all" &&
+          to_cc_values[m][2].toString().toLowerCase() == "to"){
+
+           to = removeDuplicate(to_cc_values[m][3], to);
+        }
+        if (
+          to_cc_values[m][0].toString().toLowerCase() == "all" &&
+          to_cc_values[m][2].toString().toLowerCase() == "cc" &&
+          to_cc_values[m][1].toString().toLowerCase() == "all"){
+
+            cc =  removeDuplicate(to_cc_values[m][3], cc);
+        }
+      }
+
+      break;
+    } 
+    
+    else{
+      i = j + 1;
+      j = i + 1;
+    }
+
+    count = count + 1;
+  }
+
+  // console.log("final - ", to);
+  // console.log("final - ", cc);
+  var toCc = [];
+  toCc.push(to);
+  toCc.push(cc);
+  return toCc;
+}
+
+function getCountries(records){
+    var app_country_array = []
+    var entity_service_sheet = SpreadsheetApp.openById("1E8MwAD8xPVX-qRTPTO42YHje5dhLJ-cHiMW9jQnWoU4");
+    var entity_service = entity_service_sheet.getSheetByName("Sheet").getDataRange().getValues();
+
+    var applications = [];
+    var countries = [];
+
+  // // Code to Make array of the Applications
+
+  for(var i = 10; i<19;i = i + 2){
+    if(records[i].toString().toLowerCase() == "all"){
+      applications.push(records[i-1]);
+    }
+  }
+  app_country_array.push(applications);
+
+   for (var i = 1; i < entity_service.length; i++) {
+    if (applications.includes(entity_service[i][0])) {
+      if (!countries.includes(entity_service[i][1])) {
+        countries.push(entity_service[i][1]);
+      }
+    }
+  }
+  app_country_array.push(countries);
+  // console.log(applications);
+  // console.log("---------------------------");
+  // console.log(countries);
+  return app_country_array;
+}
+
+
+
+
+// ---------- Shreya - on submit data validation ----- 4/7/2022
+
+function onSubmitValidateNew(){
+
+  var validate=0;
+  if(new_sheet.getRange(5,4).getValue()==''){
+    var display = SpreadsheetApp.getUi().alert("Please select Email Type", SpreadsheetApp.getUi().ButtonSet.OK);
+  }
+  else if(new_sheet.getRange(7,4).getValue()==''){
+    var display = SpreadsheetApp.getUi().alert("Please enter the Subject", SpreadsheetApp.getUi().ButtonSet.OK);
+  }
+  else if(new_sheet.getRange(10,4).getValue()==''){
+    var display = SpreadsheetApp.getUi().alert("Please enter the Issue Start Time", 
+    SpreadsheetApp.getUi().ButtonSet.OK);
+  }
+  else if(new_sheet.getRange(12,4).getValue()==''){
+      var display = SpreadsheetApp.getUi().alert("Please enter the Issue", SpreadsheetApp.getUi().ButtonSet.OK);
+  }
+  else if(new_sheet.getRange(16,4).getValue()==''){
+      var display = SpreadsheetApp.getUi().alert("Please enter the Action Plan", 
+      SpreadsheetApp.getUi().ButtonSet.OK);
+  }
+  else if(new_sheet.getRange(20,4).getValue()==''){
+      var display = SpreadsheetApp.getUi().alert("Please enter the Impact", SpreadsheetApp.getUi().ButtonSet.OK);
+  }
+  else if(new_sheet.getRange(24,4).getValue()==''){
+      var display = SpreadsheetApp.getUi().alert("Please enter the Next Communication", 
+      SpreadsheetApp.getUi().ButtonSet.OK);
+  }
+  else if(new_sheet.getRange(3,9).getValue()==''){
+    var display = SpreadsheetApp.getUi().alert("Please enter the Applications", 
+      SpreadsheetApp.getUi().ButtonSet.OK);
+  }
+  else{
+    validate=1;
+    draftData=onNewSubmit();
+  }
+  
+  if(validate==0){
+      SpreadsheetApp.getActive().toast(display);
+  }
+
+  return draftData
+ 
+}
+
+
+function Test(main_subject){
+
+  var threads = GmailApp.search(`subject: ${main_subject} is:sent`);
+
+  t = threads[0]; 
+  c = t.getMessageCount() - 1;
+  msg = t.getMessages()[c];
+  forwarded = msg.getBody(); // that is the body of the message we are forwarding.
+
+  subject_curr = msg.getSubject();
+  time=msg.getDate();
+  cc=msg.getCc();
+  to=msg.getTo();
+  // console.log("time -- ", cc);
+  attachment = msg.getAttachments();
+  var brcd = "<html><br></br></html>";
+
+  final_body=brcd + "---------- Forwarded message ---------" + brcd + "From: EMEA IS Service Hub - Customer" +
+  " Service &lt; customer-service.emea-issh@lafargeholcim.com &gt; " + brcd + "Date: " + 
+  time.toString().slice(0,25) +"IST"+brcd + "Subject: " + subject_curr + brcd + "To: " + to + brcd + 
+  " Cc: " + cc + brcd;
+
+  final=[];
+  final.push(final_body+forwarded);
+  final.push(to);
+  final.push(cc);
+  return (final);
+
+}
+
+function Preview(){
+
+
+  var htmlOutput = HtmlService.createHtmlOutput('To : '+to+brcd+'CC : '+cc+brcd+'Subject : '
+      +htmlBody.subject+message).setWidth(1000).setHeight(1000);
+
+    ui.showModalDialog(htmlOutput, 'Please Review');
+
+}
+
+
+function PreviewNew(){
+
+    draftData=onSubmitValidateNew();
+    records=draftData[0];
+    subject=draftData[1];
+    to=draftData[2];
+    cc=draftData[3];
+    message=draftData[4];
+
+    
+    optionalto=new_sheet.getRange(28,4).getValue();
+    optionalcc=new_sheet.getRange(32,4).getValue();
+    var comm1;
+    var comm2;
+    if(optionalto.length == 0){
+      comm1 = "";
+    }
+    else{
+      comm1 = ",";
+    }
+
+    if(optionalcc.length == 0){
+      comm2 = "";
+    }
+    else{
+      comm2 = ",";
+    }
+  
+    var htmlOutput = HtmlService.createHtmlOutput('To : '+to+ comm1 +optionalto+brcd+'CC : '+cc+ comm2 +optionalcc+brcd
+    +'Subject : '
+      +subject+message).setWidth(1000).setHeight(1000);
+
+    SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Please Review');
+
+}
+
+
+
+function CreateDraftNew(){
+
+    draftData=onSubmitValidateNew();
+    records=draftData[0];
+    subject=draftData[1];
+    to=draftData[2];
+    cc=draftData[3];
+    message=draftData[4];
+
+    optionalto=new_sheet.getRange(28,4).getValue();
+    optionalcc=new_sheet.getRange(32,4).getValue();
+
+    if(optionalto.length == 0 && optionalcc.length == 0){
+      GmailApp.createDraft(to, subject, "",{htmlBody:message,cc:cc});
+    }
+    if(optionalto.length != 0 && optionalcc.length == 0){
+      GmailApp.createDraft(to+ ',' + optionalto, subject, "",{htmlBody:message,cc:cc});
+    }
+    if(optionalto.length == 0 && optionalcc.length != 0){
+      GmailApp.createDraft(to, subject, "",{htmlBody:message,cc:cc + ',' + optionalcc});
+    }
+    if(optionalto.length != 0 && optionalcc.length != 0){
+      GmailApp.createDraft(to+ ',' + optionalto, subject, "",{htmlBody:message,cc:cc + ',' + optionalcc});
+    }
+    
+
+    issue_sheet.appendRow(records);
+    onClearNew();
+
+}
+
+
+function PreviewExisting(){
+
+    draftData=existingAlert("Preview");
+    records=draftData[0];
+    subject=draftData[1];
+    to=draftData[2];
+    cc=draftData[3];
+    message=draftData[4];
+    prev_subject=draftData[5];
+
+    console.log("I Records[20] not 0");
+    msg=Test(records[3])
+    optionalto=existing_sheet.getRange(3,8).getValue();
+    optionalcc=existing_sheet.getRange(10,8).getValue();
+
+    var htmlOutput = HtmlService.createHtmlOutput('To : '+msg[1]+' '+optionalto+brcd+'CC : '+msg[2]+' '+optionalcc+brcd+'Subject : '
+      +prev_subject+message+msg[0]).setWidth(1000).setHeight(1000);
+
+    SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Please Review');
+ }
+
+var brcd = "<html><br></br></html>";
+
+
+function CreateDraftExisting(){
+
+    draftData=existingAlert("Draft");
+    records=draftData[0];
+    subject=draftData[1];
+    to=draftData[2];
+    cc=draftData[3];
+    message=draftData[4];
+    prev_subject=draftData[5];
+
+    msg=Test(records[3])
+    // console.log( existing_sheet.getRange(3,8).getValue());
+    optionalto=existing_sheet.getRange(3,8).getValue();
+    optionalcc=existing_sheet.getRange(10,8).getValue();
+
+    if(optionalto.length == 0 && optionalcc.length == 0){
+      GmailApp.createDraft(msg[1], prev_subject, "",{htmlBody:message+msg[0],cc:msg[2]});
+    }
+    if(optionalto.length != 0 && optionalcc.length == 0){
+      GmailApp.createDraft(msg[1]+ ',' + optionalto, prev_subject, "",{htmlBody:message+msg[0],cc:msg[2]});
+    }
+    if(optionalto.length == 0 && optionalcc.length != 0){
+      GmailApp.createDraft(msg[1], prev_subject, "",{htmlBody:message+msg[0],cc:msg[2]+ ',' +optionalcc});
+    }
+    if(optionalto.length != 0 && optionalcc.length != 0){
+      GmailApp.createDraft(msg[1]+ ',' + optionalto, prev_subject, "",{htmlBody:message+msg[0],cc:msg[2]+ ',' +optionalcc});
+    }
+
+
+    // GmailApp.createDraft(msg[1]+optionalto, subject, "",{htmlBody:message+msg[0],cc:msg[2]+optionalcc});
+    onClearExisting();
+
+}
+
+//---------------------------------------- PAR //----Shreya-----------------28/07/2022--------
+
+
+function par(flag){
+
+  var ss=SpreadsheetApp.getActive();
+  var par_Temp_sheet = ss.getSheetByName('PAR_Temp');
+
+  var htmlBody = HtmlService.createTemplateFromFile("PAR_Html");
+
+  // var date = Utilities.formatDate(new Date(), "GMT+1", "dd");
+  // var suffix = ["th", "st", "nd", "rd"][(date > 3 && date < 21) || date % 10 > 3 ? 0 : date % 10];
+  // var curr_month = Utilities.formatDate(new Date(), "GMT+1", "MMMM");
+  // var curr_year = Utilities.formatDate(new Date(), "GMT+1", "yyyy");
+  
+  // htmlBody.today_date=curr_month + " " + date + suffix + ", " + curr_year;
+  
+  var records=[];
+  records.push(par_Temp_sheet.getRange(7,5).getValue());
+  records.push(par_Temp_sheet.getRange(12,5).getValue());
+  records.push(par_Temp_sheet.getRange(15,5).getValue());
+
+  timearray1=getTimeDate(records[1]);
+
+  timearray2=getTimeDate(records[2]);
+  htmlBody.today_date=timearray1[1]
+  htmlBody.subject=records[0];
+  htmlBody.start_date=timearray1[0];
+  htmlBody.end_date=timearray2[0];
+
+  temp_country_array=[]
+  for(var i=4; i<=13; i++){
+    var cell_value = par_Temp_sheet.getRange(i,9).getValue();
+
+      if(cell_value !=''){
+        temp_country_array.push(cell_value);
+      }
+  }
+
+  console.log('temp country = ',temp_country_array);
+
+  activities=[];
+
+  for(var i=16; i<=22; i++){
+    var cell_value = par_Temp_sheet.getRange(i,9).getValue();
+
+      if(cell_value !=''){
+        activities.push(cell_value);
+      }
+  }
+
+  console.log('temp activities = ',activities);
+
+
+
+  // htmlBody.services =[['LIFE',['Cameroon','Tanzania','Zambia']],['JDE-TOne',['Algeria','Zambia','Cameroon']],
+  // ['BI',['Zambia','Oman','Jordan']],['Transform',['Algeria', 'Cameroon', 'GCC - Oman', 'Tanzania', 'Zambia']]];
+  // var countries =[['Cameroon','Tanzania','Zambia'],['Algeria','Zambia','Cameroon'],['Zambia','Oman','Jordan'],
+  // ['Algeria', 'Cameroon', 'GCC - Oman', 'Tanzania', 'Zambia']];
+
+  htmlBody.services =getCountries_PAR(temp_country_array);
+  htmlBody.activities=activities;
+
+  to='mayuresh.achalkar.ext@holcim.com';
+  cc='shreya.patil.ext@holcim.com';
+  // htmlBody.subject='Test'
+  var body = htmlBody.evaluate().getContent();
+  var brcd = "<html><br></br></html>";
+
+  if(flag==1){
+  GmailApp.createDraft(to, htmlBody.subject, "",{htmlBody:body,cc:cc});
+
+  }
+  else if(flag==0){
+    optionalto=par_Temp_sheet.getRange(19,5).getValue();
+    optionalcc=par_Temp_sheet.getRange(23,5).getValue();
+    var comm1;
+    var comm2;
+    if(optionalto.length == 0){
+      comm1 = "";
+    }
+    else{
+      comm1 = ",";
+    }
+
+    if(optionalcc.length == 0){
+      comm2 = "";
+    }
+    else{
+      comm2 = ",";
+    }
+    var htmlOutput = HtmlService.createHtmlOutput('To : '+to+ comm1 +optionalto+brcd+'CC : '+cc+ comm2 +optionalcc+brcd
+    +'Subject : '
+      +htmlBody.subject+body).setWidth(1000).setHeight(1000);
+
+    SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Please Review');
+  }
+
+
+
+}
+
+function getCountries_PAR(applications){
+    var service_country_array = []
+    var entity_service_sheet = SpreadsheetApp.openById("1E8MwAD8xPVX-qRTPTO42YHje5dhLJ-cHiMW9jQnWoU4");
+    var entity_service = entity_service_sheet.getSheetByName("Sheet").getDataRange().getValues();
+
+    // var applications = ['LIFE','BI TOne','JDE TOne','MI7'];
+    var countries = [];
+
+   
+  var temp_data = {};
+  for (var i = 1; i < entity_service.length; i++) {
+    if (applications.includes(entity_service[i][0])) {
+    var key = entity_service[i][0];
+    if(key in temp_data){
+      temp_data[key].push(entity_service[i][1]);
+    }
+    else{
+      temp_data[key] = [entity_service[i][1]];
+    }
+  }
+}
+  temp_data2=[]
+  console.log(temp_data);
+
+  for (var keys in temp_data) {
+    var data =[];
+    data.push(keys);
+    data.push(temp_data[keys]);
+    temp_data2.push(data);
+  }
+
+    console.log(temp_data2);
+
+    return temp_data2;
+
+}
+
+function par_preview(){
+  par(0)
+}
+
+function par_draft(){
+  par(1)
+}
+
+
+
+
+
+
